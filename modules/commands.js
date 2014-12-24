@@ -439,19 +439,30 @@ interactive("find-url-new-window", "Open a URL in a new window",
     $browser_object = browser_object_url,
     $prompt = "Find url");
 
+define_browser_object_class("alternate-url", null,
+     function (I, prompt) {
+         check_buffer(I.buffer, content_buffer);
+         var result = yield I.buffer.window.minibuffer.read_url(
+             $prompt = prompt,
+             $initial_value = I.buffer.display_uri_string);
+         yield co_return(result); });
+
 interactive("find-alternate-url", "Edit the current URL in the minibuffer",
-    "find-url",
-    $browser_object =
-        define_browser_object_class("alternate-url", null,
-            function (I, prompt) {
-                check_buffer(I.buffer, content_buffer);
-                var result = yield I.buffer.window.minibuffer.read_url(
-                    $prompt = prompt,
-                    $initial_value = I.buffer.display_uri_string);
-                yield co_return(result);
-            }),
+    alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
+    $browser_object = browser_object_alternate_url ,
     $prompt = "Find url");
 
+interactive("find-alternate-url-new-buffer",
+    "Open a URL in a new buffer, editing the current URL in the minibuffer.",
+    alternates(follow_new_buffer, follow_new_window),
+    $browser_object = browser_object_alternate_url,
+    $prompt = "Find url");
+
+interactive("find-alternate-url-new-window",
+    "Open a URL in a new window, editing the current URL in the minibuffer.",
+    follow_new_window,
+    $browser_object = browser_object_alternate_url,
+    $prompt = "Find url");
 
 interactive("up", "Go to the parent directory of the current URL",
     "find-url",
